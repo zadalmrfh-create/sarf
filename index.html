@@ -1,0 +1,589 @@
+<!doctype html>
+<html lang="ar" dir="rtl" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>امتحان إلكتروني</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800&amp;family=Amiri:wght@400;700&amp;display=swap" rel="stylesheet">
+  <style>
+    html, body {
+      height: 100%;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Cairo", sans-serif;
+      background:
+        radial-gradient(circle at top right, rgba(212,175,55,0.18), transparent 28%),
+        radial-gradient(circle at bottom left, rgba(255,255,255,0.08), transparent 22%),
+        linear-gradient(135deg, #0f172a 0%, #111827 45%, #1e293b 100%);
+      color: #f8fafc;
+    }
+
+    .paper-glow {
+      box-shadow:
+        0 20px 50px rgba(0,0,0,0.35),
+        0 0 0 1px rgba(255,255,255,0.06) inset;
+    }
+
+    .question-card {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.09);
+      backdrop-filter: blur(10px);
+    }
+
+    .gold-line {
+      background: linear-gradient(90deg, transparent, #d4af37, transparent);
+    }
+
+    .animate-rise {
+      animation: riseIn 0.7s ease both;
+    }
+
+    @keyframes riseIn {
+      from {
+        opacity: 0;
+        transform: translateY(16px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    textarea, input[type="text"] {
+      direction: rtl;
+    }
+
+    .choice-wrap input[type="radio"],
+    .choice-wrap input[type="checkbox"] {
+      accent-color: #d4af37;
+    }
+
+    .status-ok {
+      background: rgba(34,197,94,0.15);
+      color: #dcfce7;
+      border: 1px solid rgba(34,197,94,0.35);
+    }
+
+    .status-warn {
+      background: rgba(245,158,11,0.15);
+      color: #fef3c7;
+      border: 1px solid rgba(245,158,11,0.35);
+    }
+  </style>
+  <style>body { box-sizing: border-box; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+ </head>
+ <body class="h-full">
+  <div id="app" class="h-full w-full overflow-auto">
+   <header class="w-full px-4 sm:px-6 lg:px-8 pt-6 pb-4">
+    <div class="max-w-5xl mx-auto">
+     <div id="heroCard" class="paper-glow rounded-[28px] p-6 sm:p-8 border border-white/10 bg-white/5 animate-rise">
+      <div class="flex flex-col gap-6">
+       <div class="flex items-start justify-between gap-4 flex-wrap">
+        <div>
+         <p id="teacherBadge" class="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm bg-white/10 border border-white/10 text-white/90"><i data-lucide="graduation-cap" class="w-4 h-4"></i> <span id="teacherName">الأستاذ</span></p>
+         <h1 id="examTitle" class="mt-4 text-3xl sm:text-4xl font-extrabold tracking-tight leading-tight">امتحان إلكتروني في اللغة العربية</h1>
+         <p id="examSubtitle" class="mt-3 text-white/75 text-base sm:text-lg max-w-3xl leading-8">أجب عن جميع الأسئلة بنفسك، ثم أرسل إجاباتك كاملة إلى المعلم عبر واتساب.</p>
+        </div>
+        <div class="rounded-3xl border border-[#d4af37]/40 bg-[#d4af37]/10 px-5 py-4 min-w-[220px]">
+         <div class="text-[#f5deb3] text-sm mb-1">
+          تعليمات سريعة
+         </div>
+         <ul class="space-y-2 text-sm text-white/85 leading-7">
+          <li>• اكتب اسمك أولًا</li>
+          <li>• لا يوجد زر لإظهار الإجابات</li>
+          <li>• سيتم إرسال الحل كاملًا للمعلم</li>
+         </ul>
+        </div>
+       </div>
+       <div class="gold-line h-px w-full"></div>
+       <form id="studentInfoForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div><label id="studentNameLabel" for="studentName" class="block mb-2 text-sm text-white/85">اسم الطالب</label> <input id="studentName" type="text" class="w-full rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-white placeholder-white/35 outline-none focus:ring-2 focus:ring-[#d4af37]" placeholder="اكتب اسم الطالب">
+        </div>
+        <div><label id="studentClassLabel" for="studentClass" class="block mb-2 text-sm text-white/85">الصف / الفصل</label> <input id="studentClass" type="text" class="w-full rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-white placeholder-white/35 outline-none focus:ring-2 focus:ring-[#d4af37]" placeholder="اكتب الصف أو الفصل">
+        </div>
+       </form>
+      </div>
+     </div>
+    </div>
+   </header>
+   <main class="w-full px-4 sm:px-6 lg:px-8 pb-8">
+    <div class="max-w-5xl mx-auto space-y-6">
+     <section class="question-card rounded-[28px] p-5 sm:p-7 animate-rise" style="animation-delay:0.08s">
+      <div class="flex items-center gap-3 mb-5">
+       <div class="w-11 h-11 rounded-2xl bg-[#d4af37]/15 border border-[#d4af37]/30 flex items-center justify-center text-[#f5deb3]"><i data-lucide="circle-help" class="w-5 h-5"></i>
+       </div>
+       <div>
+        <h2 class="text-2xl font-bold">١) اختر الإجابة الصحيحة</h2>
+        <p class="text-white/65 text-sm">اختر خيارًا واحدًا في كل فقرة</p>
+       </div>
+      </div>
+      <div class="space-y-6">
+       <div>
+        <h3 class="font-bold mb-3 leading-8">(أ) التنوين هو نون ساكنة تلحق آخر الاسم وتظهر في:</h3>
+        <div class="grid gap-3"><label class="choice-wrap flex items-start gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 cursor-pointer"> <input type="radio" name="q1a" value="1 - اللفظ دون الخط أو الوقف"> <span>1 - اللفظ دون الخط أو الوقف.</span> </label> <label class="choice-wrap flex items-start gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 cursor-pointer"> <input type="radio" name="q1a" value="2 - اللفظ والخط دون الوقف"> <span>2 - اللفظ والخط دون الوقف.</span> </label> <label class="choice-wrap flex items-start gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 cursor-pointer"> <input type="radio" name="q1a" value="3 - اللفظ والخط والوقف"> <span>3 - اللفظ والخط والوقف.</span> </label> <label class="choice-wrap flex items-start gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 cursor-pointer"> <input type="radio" name="q1a" value="4 - اللفظ والوقف دون الخط"> <span>4 - اللفظ والوقف دون الخط.</span> </label>
+        </div>
+       </div>
+       <div>
+        <h3 class="font-bold mb-3 leading-8">(ب) التنوين لا يدخل مطلقًا في:</h3>
+        <div class="grid gap-3"><label class="choice-wrap flex items-start gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 cursor-pointer"> <input type="radio" name="q1b" value="1 - الأسماء والأفعال"> <span>1 - الأسماء والأفعال.</span> </label> <label class="choice-wrap flex items-start gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 cursor-pointer"> <input type="radio" name="q1b" value="2 - الأسماء والحروف"> <span>2 - الأسماء والحروف.</span> </label> <label class="choice-wrap flex items-start gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 cursor-pointer"> <input type="radio" name="q1b" value="3 - الأسماء المنصرفة"> <span>3 - الأسماء المنصرفة.</span> </label> <label class="choice-wrap flex items-start gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 cursor-pointer"> <input type="radio" name="q1b" value="4 - الحروف والأفعال"> <span>4 - الحروف والأفعال.</span> </label>
+        </div>
+       </div>
+       <div>
+        <h3 class="font-bold mb-3 leading-8">(ج) الجملة المشتملة على أكثر من اسم منصرف:</h3>
+        <div class="grid gap-3"><label class="choice-wrap flex items-start gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 cursor-pointer"> <input type="radio" name="q1c" value="1 - أفضل الكلام ما قل، ودل"> <span>1 - أفضل الكلام ما قل، ودل.</span> </label> <label class="choice-wrap flex items-start gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 cursor-pointer"> <input type="radio" name="q1c" value="2 - مدحت أحمد في قصائدي"> <span>2 - مَدَحْت أحمد في قصائدي.</span> </label> <label class="choice-wrap flex items-start gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 cursor-pointer"> <input type="radio" name="q1c" value="3 - تعلمت في معاهد أزهرية"> <span>3 - تعلمت في معاهد أزهرية.</span> </label> <label class="choice-wrap flex items-start gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 cursor-pointer"> <input type="radio" name="q1c" value="4 - محمد رسول كريم"> <span>4 - محمد رسول كريم.</span> </label>
+        </div>
+       </div>
+       <div>
+        <h3 class="font-bold mb-3 leading-8">(د) المجموعة المشتملة على أسماء لا يدخلها الصرف:</h3>
+        <div class="grid gap-3"><label class="choice-wrap flex items-start gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 cursor-pointer"> <input type="radio" name="q1d" value="1 - خالد - سعيد - أحمد"> <span>1 - خالد - سعيد - أحمد.</span> </label> <label class="choice-wrap flex items-start gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 cursor-pointer"> <input type="radio" name="q1d" value="2 - فاطمة - محمد - علي"> <span>2 - فاطمة - محمد - علي.</span> </label> <label class="choice-wrap flex items-start gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 cursor-pointer"> <input type="radio" name="q1d" value="3 - فاطمة - أمجد - زينب"> <span>3 - فاطمة - أمجد - زينب.</span> </label> <label class="choice-wrap flex items-start gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 cursor-pointer"> <input type="radio" name="q1d" value="4 - محمد - خالد - علي"> <span>4 - محمد - خالد - علي.</span> </label>
+        </div>
+       </div>
+      </div>
+     </section>
+     <section class="question-card rounded-[28px] p-5 sm:p-7 animate-rise" style="animation-delay:0.12s">
+      <div class="flex items-center gap-3 mb-5">
+       <div class="w-11 h-11 rounded-2xl bg-[#d4af37]/15 border border-[#d4af37]/30 flex items-center justify-center text-[#f5deb3]"><i data-lucide="check-square" class="w-5 h-5"></i>
+       </div>
+       <div>
+        <h2 class="text-2xl font-bold">٢) صح أم خطأ</h2>
+        <p class="text-white/65 text-sm">اختر (√) أو (×) لكل عبارة</p>
+       </div>
+      </div>
+      <div class="space-y-5">
+       <div>
+        <p class="mb-3 leading-8">(أ) ينقسم الاسم باعتبار التنوين إلى منصرف، وغير منصرف.</p>
+        <div class="flex flex-wrap gap-3"><label class="choice-wrap flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 cursor-pointer"> <input type="radio" name="q2a" value="√"> <span>√</span> </label> <label class="choice-wrap flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 cursor-pointer"> <input type="radio" name="q2a" value="×"> <span>×</span> </label>
+        </div>
+       </div>
+       <div>
+        <p class="mb-3 leading-8">(ب) لا يدخل التنوين الأفعال والأسماء مطلقًا.</p>
+        <div class="flex flex-wrap gap-3"><label class="choice-wrap flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 cursor-pointer"> <input type="radio" name="q2b" value="√"> <span>√</span> </label> <label class="choice-wrap flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 cursor-pointer"> <input type="radio" name="q2b" value="×"> <span>×</span> </label>
+        </div>
+       </div>
+       <div>
+        <p class="mb-3 leading-8">(ج) الاسم المنصرف هو: ما لا يلحق آخره التنوين.</p>
+        <div class="flex flex-wrap gap-3"><label class="choice-wrap flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 cursor-pointer"> <input type="radio" name="q2c" value="√"> <span>√</span> </label> <label class="choice-wrap flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 cursor-pointer"> <input type="radio" name="q2c" value="×"> <span>×</span> </label>
+        </div>
+       </div>
+       <div>
+        <p class="mb-3 leading-8">(د) التنوين: نون ساكنة تلحق آخر الحرف في اللفظ دون الخط أو الوقف.</p>
+        <div class="flex flex-wrap gap-3"><label class="choice-wrap flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 cursor-pointer"> <input type="radio" name="q2d" value="√"> <span>√</span> </label> <label class="choice-wrap flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 cursor-pointer"> <input type="radio" name="q2d" value="×"> <span>×</span> </label>
+        </div>
+       </div>
+      </div>
+     </section>
+     <section class="question-card rounded-[28px] p-5 sm:p-7 animate-rise" style="animation-delay:0.16s">
+      <div class="flex items-center gap-3 mb-5">
+       <div class="w-11 h-11 rounded-2xl bg-[#d4af37]/15 border border-[#d4af37]/30 flex items-center justify-center text-[#f5deb3]"><i data-lucide="book-open-text" class="w-5 h-5"></i>
+       </div>
+       <div>
+        <h2 class="text-2xl font-bold">٣) اقرأ ثم أجب</h2>
+        <p class="text-white/65 text-sm">اكتب إجاباتك كاملة في الخانات</p>
+       </div>
+      </div>
+      <div class="rounded-3xl border border-white/10 bg-black/15 p-4 sm:p-5 leading-9 text-[1.04rem] font-['Amiri']">
+       قال أحمد لأخته فاطمة: العلم قيمة ينبغي أن نحرص عليها، ونبذل في سبيل ترسيخ أركانها في المجتمع كل غال ورخيص، والأمية وصمة عار يمثل وجودها تعطيلًا لجهود التنمية، والأمية تعني الجهل، وانتشار الخرافات، والأوهام، كما تعني سوقًا رائجًا للدجل والشعوذة، والتعصب، والجمود، والانغلاق.
+      </div>
+      <div class="mt-6 space-y-5">
+       <div><label for="q3a" class="block mb-2 font-bold">(أ) أعرب ما فوق الخط فيما سبق.</label> <textarea id="q3a" rows="5" class="w-full rounded-3xl border border-white/10 bg-white/10 px-4 py-4 text-white placeholder-white/35 outline-none focus:ring-2 focus:ring-[#d4af37]" placeholder="اكتب الإعراب هنا"></textarea>
+       </div>
+       <div><label for="q3b1" class="block mb-2 font-bold">1) كلمة (رائجًا) مصروفة؛ لأنها...</label> <textarea id="q3b1" rows="2" class="w-full rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-white placeholder-white/35 outline-none focus:ring-2 focus:ring-[#d4af37]" placeholder="اكتب الإجابة"></textarea>
+       </div>
+       <div><label for="q3b2" class="block mb-2 font-bold">2) كلمة (فاطمة) ممنوعة من الصرف؛ لأنها...</label> <textarea id="q3b2" rows="2" class="w-full rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-white placeholder-white/35 outline-none focus:ring-2 focus:ring-[#d4af37]" placeholder="اكتب الإجابة"></textarea>
+       </div>
+       <div><label for="q3b3" class="block mb-2 font-bold">3) كلمة (العلم) لم تُنوَّن؛ لأنها...</label> <textarea id="q3b3" rows="2" class="w-full rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-white placeholder-white/35 outline-none focus:ring-2 focus:ring-[#d4af37]" placeholder="اكتب الإجابة"></textarea>
+       </div>
+       <div><label for="q3b4" class="block mb-2 font-bold">4) كلمة (وصمة) لم تُنوَّن؛ لأنها...</label> <textarea id="q3b4" rows="2" class="w-full rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-white placeholder-white/35 outline-none focus:ring-2 focus:ring-[#d4af37]" placeholder="اكتب الإجابة"></textarea>
+       </div>
+       <div><label for="q3b5" class="block mb-2 font-bold">5) كلمة (يمثل) لم يلحقها التنوين؛ لأنها...</label> <textarea id="q3b5" rows="2" class="w-full rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-white placeholder-white/35 outline-none focus:ring-2 focus:ring-[#d4af37]" placeholder="اكتب الإجابة"></textarea>
+       </div>
+       <div><label for="q3b6" class="block mb-2 font-bold">6) كلمة (أن) لم يلحقها التنوين؛ لأنها...</label> <textarea id="q3b6" rows="2" class="w-full rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-white placeholder-white/35 outline-none focus:ring-2 focus:ring-[#d4af37]" placeholder="اكتب الإجابة"></textarea>
+       </div>
+      </div>
+     </section>
+     <section class="question-card rounded-[28px] p-5 sm:p-7 animate-rise" style="animation-delay:0.20s">
+      <div class="flex items-center gap-3 mb-5">
+       <div class="w-11 h-11 rounded-2xl bg-[#d4af37]/15 border border-[#d4af37]/30 flex items-center justify-center text-[#f5deb3]"><i data-lucide="pen-square" class="w-5 h-5"></i>
+       </div>
+       <div>
+        <h2 class="text-2xl font-bold">٤) عرّف مع التمثيل</h2>
+        <p class="text-white/65 text-sm">اكتب التعريف ومثالًا لكل عنصر</p>
+       </div>
+      </div>
+      <div class="space-y-5">
+       <div><label for="q4a" class="block mb-2 font-bold">(أ) الاسم المنصرف</label> <textarea id="q4a" rows="3" class="w-full rounded-3xl border border-white/10 bg-white/10 px-4 py-4 text-white placeholder-white/35 outline-none focus:ring-2 focus:ring-[#d4af37]" placeholder="اكتب التعريف مع المثال"></textarea>
+       </div>
+       <div><label for="q4b" class="block mb-2 font-bold">(ب) الاسم غير المنصرف</label> <textarea id="q4b" rows="3" class="w-full rounded-3xl border border-white/10 bg-white/10 px-4 py-4 text-white placeholder-white/35 outline-none focus:ring-2 focus:ring-[#d4af37]" placeholder="اكتب التعريف مع المثال"></textarea>
+       </div>
+       <div><label for="q4c" class="block mb-2 font-bold">(ج) التنوين</label> <textarea id="q4c" rows="3" class="w-full rounded-3xl border border-white/10 bg-white/10 px-4 py-4 text-white placeholder-white/35 outline-none focus:ring-2 focus:ring-[#d4af37]" placeholder="اكتب التعريف مع المثال"></textarea>
+       </div>
+      </div>
+     </section>
+     <section class="question-card rounded-[28px] p-5 sm:p-7 animate-rise" style="animation-delay:0.24s">
+      <div class="flex items-center gap-3 mb-5">
+       <div class="w-11 h-11 rounded-2xl bg-[#d4af37]/15 border border-[#d4af37]/30 flex items-center justify-center text-[#f5deb3]"><i data-lucide="file-pen-line" class="w-5 h-5"></i>
+       </div>
+       <div>
+        <h2 class="text-2xl font-bold">٥) مثّل في جمل مفيدة</h2>
+        <p class="text-white/65 text-sm">اكتب جملة مناسبة لكل نوع</p>
+       </div>
+      </div>
+      <div class="space-y-5">
+       <div><label for="q5a" class="block mb-2 font-bold">(أ) اسم مصروف</label> <textarea id="q5a" rows="2" class="w-full rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-white placeholder-white/35 outline-none focus:ring-2 focus:ring-[#d4af37]" placeholder="اكتب جملة مفيدة"></textarea>
+       </div>
+       <div><label for="q5b" class="block mb-2 font-bold">(ب) اسم ممنوع من الصرف</label> <textarea id="q5b" rows="2" class="w-full rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-white placeholder-white/35 outline-none focus:ring-2 focus:ring-[#d4af37]" placeholder="اكتب جملة مفيدة"></textarea>
+       </div>
+       <div><label for="q5c" class="block mb-2 font-bold">(ج) جملة فعلية</label> <textarea id="q5c" rows="2" class="w-full rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-white placeholder-white/35 outline-none focus:ring-2 focus:ring-[#d4af37]" placeholder="اكتب جملة مفيدة"></textarea>
+       </div>
+       <div><label for="q5d" class="block mb-2 font-bold">(د) جملة اسمية</label> <textarea id="q5d" rows="2" class="w-full rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-white placeholder-white/35 outline-none focus:ring-2 focus:ring-[#d4af37]" placeholder="اكتب جملة مفيدة"></textarea>
+       </div>
+      </div>
+     </section>
+     <section class="question-card rounded-[28px] p-5 sm:p-7 animate-rise" style="animation-delay:0.28s">
+      <div class="flex items-center gap-3 mb-5">
+       <div class="w-11 h-11 rounded-2xl bg-[#d4af37]/15 border border-[#d4af37]/30 flex items-center justify-center text-[#f5deb3]"><i data-lucide="scroll-text" class="w-5 h-5"></i>
+       </div>
+       <div>
+        <h2 class="text-2xl font-bold">٦) سؤال الإعراب</h2>
+        <p class="text-white/65 text-sm">اكتب الإجابة كاملة</p>
+       </div>
+      </div>
+      <div class="rounded-3xl border border-white/10 bg-black/15 p-4 sm:p-5 leading-9 text-[1.06rem] font-['Amiri']">
+       أعرب قوله تعالى: {وَقَالَ الَّذِي اشْتَرَاهُ مِن مِّصْرَ لِامْرَأَتِهِ أَكْرِمِي مَثْوَاهُ عَسَىٰ أَن يَنفَعَنَا أَوْ نَتَّخِذَهُ وَلَدًا}.
+      </div>
+      <div class="mt-5"><label for="q6" class="block mb-2 font-bold">الإجابة</label> <textarea id="q6" rows="7" class="w-full rounded-3xl border border-white/10 bg-white/10 px-4 py-4 text-white placeholder-white/35 outline-none focus:ring-2 focus:ring-[#d4af37]" placeholder="اكتب الإعراب هنا"></textarea>
+      </div>
+     </section>
+     <section class="animate-rise" style="animation-delay:0.32s">
+      <div class="paper-glow rounded-[28px] p-5 sm:p-7 border border-white/10 bg-white/5">
+       <div class="flex flex-col lg:flex-row gap-4 lg:items-center lg:justify-between">
+        <div>
+         <h2 class="text-2xl font-bold mb-2">إرسال الإجابات إلى المعلم</h2>
+         <p class="text-white/70 leading-8">عند الضغط على الزر، سيتم تجهيز رسالة واتساب تحتوي على <span class="text-[#f5deb3] font-bold">كل إجابات الطالب بالتفصيل</span> وليس ملخصًا فقط.</p>
+        </div><button id="sendWhatsappBtn" type="button" class="inline-flex items-center justify-center gap-3 rounded-2xl bg-[#d4af37] text-slate-900 font-extrabold px-6 py-4 hover:brightness-105 active:scale-[0.99] transition disabled:opacity-60 disabled:cursor-not-allowed focus:outline-none focus:ring-4 focus:ring-[#d4af37]/30"> <i data-lucide="send" class="w-5 h-5"></i> <span id="submitButtonText">إرسال الإجابات للمعلم</span> </button>
+       </div>
+       <div id="statusBox" class="hidden mt-5 rounded-2xl px-4 py-3 text-sm leading-7"></div>
+      </div>
+     </section>
+    </div>
+   </main>
+   <footer class="w-full px-4 sm:px-6 lg:px-8 pb-8">
+    <div class="max-w-5xl mx-auto text-center text-white/55 text-sm">
+     <p id="footerNote">يرجى مراجعة الإجابات قبل الإرسال.</p>
+    </div>
+   </footer>
+  </div>
+  <script>
+    const defaultConfig = {
+      background_color: "#0f172a",
+      surface_color: "#ffffff",
+      text_color: "#f8fafc",
+      primary_action_color: "#d4af37",
+      secondary_action_color: "#cbd5e1",
+      font_family: "Cairo",
+      font_size: 18,
+      exam_title: "امتحان إلكتروني في اللغة العربية",
+      exam_subtitle: "أجب عن جميع الأسئلة بنفسك، ثم أرسل إجاباتك كاملة إلى المعلم عبر واتساب.",
+      teacher_name: "الأستاذ",
+      whatsapp_number: "201000000000",
+      student_name_label: "اسم الطالب",
+      student_class_label: "الصف / الفصل",
+      submit_button_text: "إرسال الإجابات للمعلم",
+      footer_note: "يرجى مراجعة الإجابات قبل الإرسال."
+    };
+
+    const el = {};
+
+    function cacheElements() {
+      el.examTitle = document.getElementById('examTitle');
+      el.examSubtitle = document.getElementById('examSubtitle');
+      el.teacherName = document.getElementById('teacherName');
+      el.studentNameLabel = document.getElementById('studentNameLabel');
+      el.studentClassLabel = document.getElementById('studentClassLabel');
+      el.submitButtonText = document.getElementById('submitButtonText');
+      el.footerNote = document.getElementById('footerNote');
+      el.sendWhatsappBtn = document.getElementById('sendWhatsappBtn');
+      el.heroCard = document.getElementById('heroCard');
+      el.statusBox = document.getElementById('statusBox');
+      el.app = document.getElementById('app');
+      el.body = document.body;
+    }
+
+    function getConfigValue(key) {
+      if (window.elementSdk && window.elementSdk.config && window.elementSdk.config[key] !== undefined && window.elementSdk.config[key] !== "") {
+        return window.elementSdk.config[key];
+      }
+      return defaultConfig[key];
+    }
+
+    function showStatus(message, type) {
+      el.statusBox.classList.remove('hidden', 'status-ok', 'status-warn');
+      el.statusBox.textContent = message;
+      el.statusBox.classList.add(type === 'ok' ? 'status-ok' : 'status-warn');
+    }
+
+    function getRadioValue(name) {
+      const selected = document.querySelector(`input[name="${name}"]:checked`);
+      return selected ? selected.value : "لم يتم الاختيار";
+    }
+
+    function getTextValue(id) {
+      const field = document.getElementById(id);
+      return field && field.value.trim() ? field.value.trim() : "لم يكتب الطالب إجابة";
+    }
+
+    function buildWhatsappMessage() {
+      const studentName = document.getElementById('studentName').value.trim();
+      const studentClass = document.getElementById('studentClass').value.trim();
+
+      const lines = [
+        "📘 *" + getConfigValue('exam_title') + "*",
+        "",
+        "👤 *اسم الطالب:* " + (studentName || "غير مكتوب"),
+        "🏫 *الصف / الفصل:* " + (studentClass || "غير مكتوب"),
+        "",
+        "━━━━━━━━━━",
+        "*١) اختر الإجابة الصحيحة*",
+        "أ) " + getRadioValue('q1a'),
+        "ب) " + getRadioValue('q1b'),
+        "ج) " + getRadioValue('q1c'),
+        "د) " + getRadioValue('q1d'),
+        "",
+        "━━━━━━━━━━",
+        "*٢) صح أم خطأ*",
+        "أ) " + getRadioValue('q2a'),
+        "ب) " + getRadioValue('q2b'),
+        "ج) " + getRadioValue('q2c'),
+        "د) " + getRadioValue('q2d'),
+        "",
+        "━━━━━━━━━━",
+        "*٣) اقرأ ثم أجب*",
+        "أ) أعرب ما فوق الخط:",
+        getTextValue('q3a'),
+        "",
+        "1) كلمة (رائجًا) مصروفة؛ لأنها:",
+        getTextValue('q3b1'),
+        "",
+        "2) كلمة (فاطمة) ممنوعة من الصرف؛ لأنها:",
+        getTextValue('q3b2'),
+        "",
+        "3) كلمة (العلم) لم تُنوَّن؛ لأنها:",
+        getTextValue('q3b3'),
+        "",
+        "4) كلمة (وصمة) لم تُنوَّن؛ لأنها:",
+        getTextValue('q3b4'),
+        "",
+        "5) كلمة (يمثل) لم يلحقها التنوين؛ لأنها:",
+        getTextValue('q3b5'),
+        "",
+        "6) كلمة (أن) لم يلحقها التنوين؛ لأنها:",
+        getTextValue('q3b6'),
+        "",
+        "━━━━━━━━━━",
+        "*٤) عرّف مع التمثيل*",
+        "أ) الاسم المنصرف:",
+        getTextValue('q4a'),
+        "",
+        "ب) الاسم غير المنصرف:",
+        getTextValue('q4b'),
+        "",
+        "ج) التنوين:",
+        getTextValue('q4c'),
+        "",
+        "━━━━━━━━━━",
+        "*٥) مثل في جمل مفيدة*",
+        "أ) اسم مصروف:",
+        getTextValue('q5a'),
+        "",
+        "ب) اسم ممنوع من الصرف:",
+        getTextValue('q5b'),
+        "",
+        "ج) جملة فعلية:",
+        getTextValue('q5c'),
+        "",
+        "د) جملة اسمية:",
+        getTextValue('q5d'),
+        "",
+        "━━━━━━━━━━",
+        "*٦) أعرب قوله تعالى:*",
+        getTextValue('q6')
+      ];
+
+      return lines.join("\n");
+    }
+
+    function normalizeWhatsappNumber(raw) {
+      return (raw || "").replace(/[^\d]/g, "");
+    }
+
+    function validateBeforeSend() {
+      const studentName = document.getElementById('studentName').value.trim();
+      const wa = normalizeWhatsappNumber(getConfigValue('whatsapp_number'));
+
+      if (!studentName) {
+        showStatus("من فضلك اكتب اسم الطالب أولًا قبل الإرسال.", "warn");
+        return false;
+      }
+
+      if (!wa) {
+        showStatus("من فضلك أضف رقم واتساب المعلم من إعدادات العنصر.", "warn");
+        return false;
+      }
+
+      return true;
+    }
+
+    function applyConfig(config) {
+      const c = { ...defaultConfig, ...config };
+      document.body.style.color = c.text_color;
+      document.body.style.fontFamily = `${c.font_family}, Cairo, sans-serif`;
+      el.app.style.background = `linear-gradient(135deg, ${c.background_color} 0%, ${c.background_color} 60%, ${c.secondary_action_color} 220%)`;
+      el.heroCard.style.background = `${hexToRgba(c.surface_color, 0.08)}`;
+      el.heroCard.style.borderColor = `${hexToRgba(c.surface_color, 0.14)}`;
+      el.examTitle.textContent = c.exam_title;
+      el.examSubtitle.textContent = c.exam_subtitle;
+      el.teacherName.textContent = c.teacher_name;
+      el.studentNameLabel.textContent = c.student_name_label;
+      el.studentClassLabel.textContent = c.student_class_label;
+      el.submitButtonText.textContent = c.submit_button_text;
+      el.footerNote.textContent = c.footer_note;
+      el.sendWhatsappBtn.style.backgroundColor = c.primary_action_color;
+      el.sendWhatsappBtn.style.color = "#111827";
+
+      const baseSize = Number(c.font_size) || defaultConfig.font_size;
+      el.examTitle.style.fontSize = `${baseSize * 1.9}px`;
+      el.examSubtitle.style.fontSize = `${baseSize * 1}px`;
+      document.querySelectorAll('h2').forEach(item => item.style.fontSize = `${baseSize * 1.4}px`);
+      document.querySelectorAll('h3, label, button, input, textarea, p, span, li').forEach(item => {
+        if (item.tagName === 'H3') item.style.fontSize = `${baseSize * 1.03}px`;
+        else if (item.tagName === 'LABEL') item.style.fontSize = `${baseSize * 0.9}px`;
+        else if (item.tagName === 'BUTTON') item.style.fontSize = `${baseSize * 0.95}px`;
+        else if (item.tagName === 'INPUT' || item.tagName === 'TEXTAREA') item.style.fontSize = `${baseSize * 0.95}px`;
+        else if (item.tagName === 'LI') item.style.fontSize = `${baseSize * 0.82}px`;
+        else item.style.fontSize = `${baseSize * 0.92}px`;
+      });
+    }
+
+    function hexToRgba(hex, alpha) {
+      const safeHex = (hex || "#ffffff").replace('#', '');
+      const full = safeHex.length === 3
+        ? safeHex.split('').map(ch => ch + ch).join('')
+        : safeHex;
+      const num = parseInt(full, 16);
+      const r = (num >> 16) & 255;
+      const g = (num >> 8) & 255;
+      const b = num & 255;
+      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
+
+    async function initElementSdk() {
+      if (!window.elementSdk) {
+        applyConfig(defaultConfig);
+        return;
+      }
+
+      window.elementSdk.init({
+        defaultConfig,
+        onConfigChange: async (config) => {
+          applyConfig(config);
+        },
+        mapToCapabilities: (config) => ({
+          recolorables: [
+            {
+              get: () => config.background_color || defaultConfig.background_color,
+              set: (value) => {
+                config.background_color = value;
+                window.elementSdk.setConfig({ background_color: value });
+              }
+            },
+            {
+              get: () => config.surface_color || defaultConfig.surface_color,
+              set: (value) => {
+                config.surface_color = value;
+                window.elementSdk.setConfig({ surface_color: value });
+              }
+            },
+            {
+              get: () => config.text_color || defaultConfig.text_color,
+              set: (value) => {
+                config.text_color = value;
+                window.elementSdk.setConfig({ text_color: value });
+              }
+            },
+            {
+              get: () => config.primary_action_color || defaultConfig.primary_action_color,
+              set: (value) => {
+                config.primary_action_color = value;
+                window.elementSdk.setConfig({ primary_action_color: value });
+              }
+            },
+            {
+              get: () => config.secondary_action_color || defaultConfig.secondary_action_color,
+              set: (value) => {
+                config.secondary_action_color = value;
+                window.elementSdk.setConfig({ secondary_action_color: value });
+              }
+            }
+          ],
+          borderables: [],
+          fontEditable: {
+            get: () => config.font_family || defaultConfig.font_family,
+            set: (value) => {
+              config.font_family = value;
+              window.elementSdk.setConfig({ font_family: value });
+            }
+          },
+          fontSizeable: {
+            get: () => config.font_size || defaultConfig.font_size,
+            set: (value) => {
+              config.font_size = value;
+              window.elementSdk.setConfig({ font_size: value });
+            }
+          }
+        }),
+        mapToEditPanelValues: (config) => new Map([
+          ["exam_title", config.exam_title || defaultConfig.exam_title],
+          ["exam_subtitle", config.exam_subtitle || defaultConfig.exam_subtitle],
+          ["teacher_name", config.teacher_name || defaultConfig.teacher_name],
+          ["whatsapp_number", config.whatsapp_number || defaultConfig.whatsapp_number],
+          ["student_name_label", config.student_name_label || defaultConfig.student_name_label],
+          ["student_class_label", config.student_class_label || defaultConfig.student_class_label],
+          ["submit_button_text", config.submit_button_text || defaultConfig.submit_button_text],
+          ["footer_note", config.footer_note || defaultConfig.footer_note]
+        ])
+      });
+
+      applyConfig(window.elementSdk.config || defaultConfig);
+    }
+
+    function setupSendButton() {
+      el.sendWhatsappBtn.addEventListener('click', () => {
+        if (!validateBeforeSend()) return;
+
+        const whatsappNumber = normalizeWhatsappNumber(getConfigValue('whatsapp_number'));
+        const message = buildWhatsappMessage();
+        const url = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
+
+        showStatus("تم تجهيز رسالة واتساب بكل إجابات الطالب. سيتم فتح واتساب في نافذة جديدة.", "ok");
+        window.open(url, '_blank');
+      });
+    }
+
+    cacheElements();
+    initElementSdk();
+    setupSendButton();
+
+    if (window.lucide) {
+      window.lucide.createIcons();
+    }
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9e4293b286fae193',t:'MTc3NDgyNjEzMC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
