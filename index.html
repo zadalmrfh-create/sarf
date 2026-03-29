@@ -264,13 +264,29 @@
      </section>
      <section class="animate-rise" style="animation-delay:0.32s">
       <div class="paper-glow rounded-[28px] p-5 sm:p-7 border border-white/10 bg-white/5">
-       <div class="flex flex-col lg:flex-row gap-4 lg:items-center lg:justify-between">
-        <div>
-         <h2 class="text-2xl font-bold mb-2">إرسال الإجابات إلى المعلم</h2>
-         <p class="text-white/70 leading-8">عند الضغط على الزر، سيتم تجهيز رسالة واتساب تحتوي على <span class="text-[#f5deb3] font-bold">كل إجابات الطالب بالتفصيل</span> وليس ملخصًا فقط.</p>
-        </div><button id="sendWhatsappBtn" type="button" class="inline-flex items-center justify-center gap-3 rounded-2xl bg-[#d4af37] text-slate-900 font-extrabold px-6 py-4 hover:brightness-105 active:scale-[0.99] transition disabled:opacity-60 disabled:cursor-not-allowed focus:outline-none focus:ring-4 focus:ring-[#d4af37]/30"> <i data-lucide="send" class="w-5 h-5"></i> <span id="submitButtonText">إرسال الإجابات للمعلم</span> </button>
+       <div class="flex flex-col gap-4">
+        <div id="scoreBox" class="hidden rounded-2xl border border-[#d4af37]/40 bg-[#d4af37]/15 px-5 py-4">
+         <div class="flex flex-col sm:flex-row gap-4 items-center justify-between">
+          <div>
+           <p class="text-[#f5deb3] text-sm mb-2">تقييمك:</p>
+           <div class="flex items-baseline gap-2">
+            <span id="scoreValue" class="text-4xl font-bold text-[#d4af37]">0</span> <span class="text-xl text-white/70"> / 20</span>
+           </div>
+           <p id="scorePercentage" class="text-[#f5deb3] text-sm mt-1">النسبة: 0%</p>
+          </div>
+          <div id="scoreEmoji" class="text-5xl">
+           📝
+          </div>
+         </div>
+        </div>
+        <div class="flex flex-col lg:flex-row gap-4 lg:items-center lg:justify-between">
+         <div>
+          <h2 class="text-2xl font-bold mb-2">إرسال الإجابات إلى المعلم</h2>
+          <p class="text-white/70 leading-8">عند الضغط على الزر، سيتم تجهيز رسالة واتساب تحتوي على <span class="text-[#f5deb3] font-bold">كل إجابات الطالب والدرجة</span> وليس ملخصًا فقط.</p>
+         </div><button id="sendWhatsappBtn" type="button" class="inline-flex items-center justify-center gap-3 rounded-2xl bg-[#d4af37] text-slate-900 font-extrabold px-6 py-4 hover:brightness-105 active:scale-[0.99] transition disabled:opacity-60 disabled:cursor-not-allowed focus:outline-none focus:ring-4 focus:ring-[#d4af37]/30"> <i data-lucide="send" class="w-5 h-5"></i> <span id="submitButtonText">إرسال الإجابات للمعلم</span> </button>
+        </div>
+        <div id="statusBox" class="hidden mt-3 rounded-2xl px-4 py-3 text-sm leading-7"></div>
        </div>
-       <div id="statusBox" class="hidden mt-5 rounded-2xl px-4 py-3 text-sm leading-7"></div>
       </div>
      </section>
     </div>
@@ -292,12 +308,24 @@
       font_size: 18,
       exam_title: "امتحان إلكتروني في اللغة العربية",
       exam_subtitle: "أجب عن جميع الأسئلة بنفسك، ثم أرسل إجاباتك كاملة إلى المعلم عبر واتساب.",
-      teacher_name: "الأستاذ",
-      whatsapp_number: "201000000000",
+      teacher_name: "الأستاذ ضياء نبيل",
+      whatsapp_number: "+201099285912",
       student_name_label: "اسم الطالب",
       student_class_label: "الصف / الفصل",
       submit_button_text: "إرسال الإجابات للمعلم",
       footer_note: "يرجى مراجعة الإجابات قبل الإرسال."
+    };
+
+    // نموذج الإجابات الصحيحة للتقييم التلقائي
+    const answerKey = {
+      q1a: "2 - اللفظ والخط دون الوقف",
+      q1b: "4 - الحروف والأفعال",
+      q1c: "3 - تعلمت في معاهد أزهرية",
+      q1d: "2 - فاطمة - محمد - علي",
+      q2a: "√",
+      q2b: "×",
+      q2c: "×",
+      q2d: "×"
     };
 
     const el = {};
@@ -572,9 +600,42 @@
         const message = buildWhatsappMessage();
         const url = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
 
-        showStatus("تم تجهيز رسالة واتساب بكل إجابات الطالب. سيتم فتح واتساب في نافذة جديدة.", "ok");
+        showStatus("تم تجهيز رسالة واتساب بكل إجابات الطالب والدرجة. سيتم فتح واتساب في نافذة جديدة.", "ok");
         window.open(url, '_blank');
       });
+
+      // تحديث الدرجة والنسبة في الوقت الفعلي
+      const allInputs = document.querySelectorAll('input[type="radio"], input[type="checkbox"]');
+      allInputs.forEach(input => {
+        input.addEventListener('change', updateScoreDisplay);
+      });
+    }
+
+    function updateScoreDisplay() {
+      const score = calculateScore();
+      const percentage = Math.round((score / 20) * 100);
+      
+      const scoreBox = document.getElementById('scoreBox');
+      const scoreValue = document.getElementById('scoreValue');
+      const scorePercentage = document.getElementById('scorePercentage');
+      const scoreEmoji = document.getElementById('scoreEmoji');
+
+      scoreValue.textContent = score;
+      scorePercentage.textContent = `النسبة: ${percentage}%`;
+      scoreBox.classList.remove('hidden');
+
+      // تغيير الإيموجي حسب الدرجة
+      if (percentage === 100) {
+        scoreEmoji.textContent = '🌟';
+      } else if (percentage >= 80) {
+        scoreEmoji.textContent = '🎉';
+      } else if (percentage >= 60) {
+        scoreEmoji.textContent = '👍';
+      } else if (percentage >= 40) {
+        scoreEmoji.textContent = '📚';
+      } else {
+        scoreEmoji.textContent = '💪';
+      }
     }
 
     cacheElements();
@@ -585,5 +646,5 @@
       window.lucide.createIcons();
     }
   </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9e4293b286fae193',t:'MTc3NDgyNjEzMC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9e42c6b8303173d3',t:'MTc3NDgyODIyMC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
